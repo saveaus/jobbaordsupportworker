@@ -1,3 +1,5 @@
+import { resolveSiteUrl } from "@/lib/site-url"
+
 export const siteConfig = {
   /**
    * Working name — the final name is undecided (see DECISIONS.md).
@@ -6,6 +8,6 @@ export const siteConfig = {
    */
   name: "Supportwork",
   tagline: "Support work jobs. Every state.",
-  url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+  url: resolveSiteUrl(),
   contactEmail: process.env.CONTACT_EMAIL ?? "contact@supportwork.au",
 }

@@ -4,8 +4,8 @@ import { z } from "zod"
 import { createSupabaseServerClient } from "@/lib/supabase/server"
 import { checkRateLimit } from "@/lib/rate-limit"
 import { verifyTurnstile } from "@/lib/turnstile"
-import { siteConfig } from "@/config/site"
 import { accountKindFromNext } from "@/lib/account-kind"
+import { getRequestSiteUrl } from "@/lib/request-site-url"
 
 export interface SignInState {
   error?: string
@@ -48,11 +48,12 @@ export async function sendMagicLink(
     return { error: "Too many sign-in emails requested. Try again in an hour." }
 
   const supabase = await createSupabaseServerClient()
+  const origin = await getRequestSiteUrl()
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
       shouldCreateUser: true,
-      emailRedirectTo: `${siteConfig.url}/auth/callback?next=${encodeURIComponent(next)}`,
+      emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent(next)}`,
       data: { account_kind: kind },
     },
   })
