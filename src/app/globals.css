@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens — locked to the design-quality brief.
+ * Six colours only. Inter only. Sizes 14/16/24/32. Weights 400/600.
+ * Spacing 4/8/12/16/24/32/48/64 (plus 20px row padding, 40px logo,
+ * 44px control height from the product brief). Radius 4px. No shadows,
+ * no animations, no gradients.
+ */
+@theme {
+  --color-*: initial;
+  --color-ink: #212121;
+  --color-night: #0b110f;
+  --color-paper: #ffffff;
+  --color-panel: #f7f7f7;
+  --color-line: #e5e5e5;
+  --color-muted: #9e9e9e;
+  --color-error: #b00020;
+
+  --font-*: initial;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --text-*: initial;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.5;
+  --text-base: 1rem;
+  --text-base--line-height: 1.5;
+  --text-h2: 1.5rem;
+  --text-h2--line-height: 1.2;
+  --text-h2--letter-spacing: -0.01em;
+  --text-h2--font-weight: 600;
+  --text-h1: 2rem;
+  --text-h1--line-height: 1.2;
+  --text-h1--letter-spacing: -0.01em;
+  --text-h1--font-weight: 600;
+
+  --font-weight-*: initial;
+  --font-weight-normal: 400;
+  --font-weight-semibold: 600;
+
+  --spacing-*: initial;
+  --spacing-0: 0px;
+  --spacing-px: 1px;
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px; /* job row vertical padding */
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-10: 40px; /* provider logo */
+  --spacing-11: 44px; /* control height / touch target */
+  --spacing-12: 48px;
+  --spacing-16: 64px;
+
+  --radius-*: initial;
+  --radius-sm: 4px;
+
+  --shadow-*: initial;
+  --inset-shadow-*: initial;
+  --drop-shadow-*: initial;
+  --text-shadow-*: initial;
+  --animate-*: initial;
+  --blur-*: initial;
+
+  --container-*: initial;
+  --container-page: 960px;
+  --container-form: 480px;
+  --container-prose: 65ch;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-size: 1rem;
+  line-height: 1.5;
+  accent-color: var(--color-ink);
+}
+
+a {
+  text-underline-offset: 2px;
+}
+
+:focus-visible {
+  outline: 1px solid var(--color-ink);
+  outline-offset: 2px;
+}

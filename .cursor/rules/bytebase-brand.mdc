@@ -1,0 +1,88 @@
+---
+description: Bytebase-inspired visual and verbal brand for Supportwork. Apply to all UI, copy, layout, and styling.
+alwaysApply: true
+---
+
+# Brand: Bytebase feel
+
+Supportwork should look and feel like [Bytebase](https://www.bytebase.com/) — calm, governed, precise. Follow [Bytebase Brand Guidelines](https://www.bytebase.com/brand/). Adapt the system to a support-work job board; never copy Bytebase product copy, logo, or “database governance” claims.
+
+Replace the old 6-colour Inter system (`ink` `#212121`, grey panel, no accent). Do not add consumer-app chrome, heavy shadows, or marketing fluff.
+
+## Colour
+
+Use these tokens. Night is the ink. Lime/Forest is the only accent.
+
+| Token | Hex | Use |
+|---|---|---|
+| `paper` | `#FFFFFF` | Page background, cards on dark |
+| `night` | `#0B110F` | Text, primary buttons, dark surfaces |
+| `night-75` | `#111819` | Dark panel |
+| `night-50` | `#1F2828` | Elevated dark |
+| `night-25` | `#2D3535` | Borders on dark |
+| `forest` | `#55B216` | Primary accent, success, key CTAs on dark |
+| `lime` | `#B4F34D` | Hover/highlight on dark, focus rings |
+| `apple` | `#3B7F0D` | Accent pressed / dark-on-lime text |
+| `slate-100` | `#CFD5E0` | Muted on dark |
+| `slate-40` | `#E9EEF9` | Light panel, zebra rows |
+| `slate-20` | `#F5F6FF` | Subtle page tint, table header |
+| `error` | `#EA6B35` | Errors (Amber), never grey-red |
+
+Secondary hues (Cobalt, Violet, Amber) are for charts, status, and brand-device fills only — not body chrome.
+
+Light UI: `paper` + `night` text + `slate-20` panels + 1px `slate-100` borders.
+Dark moments (hero, footer, empty-state art): `night` + `paper`/`lime` text.
+
+## Type
+
+- Headings, UI, body: **Zalando Sans** (stand-in for APK Protocol). Weights 400 / 500 / 600.
+- Meta, rates, dates, IDs, filters, code: **Roboto Mono** (stand-in for Era Mono).
+- Headlines: large, tight tracking, line-broken for rhythm. Body: 16px / 1.5. Meta: 14px mono.
+- One idea per heading. Prefer short stacked lines over long wrapping titles.
+
+## Layout and UI
+
+- Generous whitespace. Content max ~960px. Forms ~480px.
+- Geometry over decoration: 4–8px radius, 1px borders, no drop shadows, no gradients as chrome.
+- Brand devices (use sparingly as section marks, empty states, patterns — not as clutter):
+  - Square = access / account / privacy
+  - Triangle = apply / post / progress
+  - Circle = trust / review / policy
+  - Hexagon = providers / integrations
+- Two-tone geometric patterns (Forest/Lime, Night/Light) only in heroes and empty states.
+- Motion: short, functional (hover underline, device rotate). No bounce, no page-load theatre.
+- One primary action per view. Primary = filled black (`night` `#0B110F`) on light, filled `lime` on dark. Secondary = outline.
+- Focus: 2px `lime` or `night` ring. Touch targets ≥ 44px.
+
+```tsx
+// ❌ BAD — old austere grey system
+<button className="bg-ink text-paper">Post a job</button>
+<p className="text-muted">Support work jobs across Australia.</p>
+
+// ✅ GOOD — night ink, lime accent, controlled type
+<button className="bg-night text-paper hover:bg-night-50">Post a job</button>
+<p className="font-mono text-sm text-night-25">Jobs near you. Reviewed before they list.</p>
+```
+
+## Voice
+
+Character: a steward — modern, technical, confident. Governs without slowing.
+
+Principles: Dependable, Connected, Innovative, Intuitive.
+Tone: deeply pragmatic, empathetic, expert, crystal clear.
+
+Do:
+- Lead with the system: “Jobs listed. Providers verified.”
+- Short controlled sentences. Parallel structure: “One board. Every state.”
+- Verb chains for flows: “Search. Apply. Start.”
+- Ground claims in mechanism: “Each listing is reviewed before it goes live.”
+
+Do not:
+- Hedge (“this can help…”), stack features, or use empty adjectives (“powerful”, “seamless”).
+- Use metaphor (“your career engine”).
+- Over-explain. Casual/friendly filler is off-brand.
+
+```txt
+❌ Supportwork is a comprehensive platform designed to streamline finding NDIS support work.
+✅ Support work jobs across Australia. Search. Apply. Start.
+```
