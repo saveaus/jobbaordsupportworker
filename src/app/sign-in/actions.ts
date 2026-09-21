@@ -62,3 +62,4 @@ export async function sendMagicLink(
     return { error: "We couldn't send the email. Check the address and try again." }
 
   return { sent: true, email, next }
+}
