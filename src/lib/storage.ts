@@ -1,8 +1,9 @@
 import { siteConfig } from "@/config/site"
+import { supabaseUrl } from "@/lib/supabase/config"
 
 export function publicLogoUrl(path: string | null | undefined): string | null {
   if (!path) return null
-  const base = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const base = supabaseUrl()
   if (!base) return null
   return `${base}/storage/v1/object/public/logos/${path}`
 }

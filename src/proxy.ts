@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server"
 import { createServerClient } from "@supabase/ssr"
-import { isSupabaseConfigured } from "@/lib/supabase/config"
+import { isSupabaseConfigured, supabaseAnonKey, supabaseUrl } from "@/lib/supabase/config"
 
 /**
  * Session refresh (Next 16 proxy, formerly middleware). Keeps Supabase
@@ -12,8 +12,8 @@ export default async function proxy(request: NextRequest) {
   if (!isSupabaseConfigured()) return response
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl(),
+    supabaseAnonKey(),
     {
       cookies: {
         getAll() {
