@@ -11,6 +11,7 @@ export interface SignInState {
   error?: string
   sent?: boolean
   email?: string
+  next?: string
 }
 
 const signInSchema = z.object({
@@ -53,12 +54,11 @@ export async function sendMagicLink(
     email,
     options: {
       shouldCreateUser: true,
-      emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent(next)}`,
+      emailRedirectTo: `${origin}/auth/confirm?next=${encodeURIComponent(next)}`,
       data: { account_kind: kind },
     },
   })
   if (error)
     return { error: "We couldn't send the email. Check the address and try again." }
 
-  return { sent: true, email }
-}
+  return { sent: true, email, next }

@@ -26,8 +26,13 @@ export async function createSupabaseServerClient() {
           try {
             for (const { name, value, options } of cookiesToSet)
               cookieStore.set(name, value, options)
-          } catch {
-            // Called from a Server Component; the proxy refreshes sessions.
+          } catch (error) {
+            if (
+              error instanceof Error &&
+              error.message.includes("Cookies can only be modified")
+            )
+              return
+            throw error
           }
         },
       },

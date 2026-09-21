@@ -15,10 +15,27 @@ export function SignInForm({ next }: { next: string }) {
 
   if (state.sent)
     return (
-      <p>
-        We&apos;ve emailed a sign-in link to {state.email}. Open it on this device to
-        continue.
-      </p>
+      <div className="flex w-full max-w-form flex-col gap-6">
+        <p>
+          We emailed {state.email}. Open the link and tap Sign in, or enter the
+          6-digit code from the email.
+        </p>
+        <form action="/auth/callback" method="post" className="flex flex-col gap-6">
+          <input type="hidden" name="email" value={state.email} />
+          <input type="hidden" name="next" value={state.next ?? next} />
+          <Field label="Code" htmlFor="token">
+            <Input
+              id="token"
+              name="token"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              required
+              placeholder="000000"
+            />
+          </Field>
+          <Button type="submit">Sign in with code</Button>
+        </form>
+      </div>
     )
 
   return (
@@ -42,7 +59,7 @@ export function SignInForm({ next }: { next: string }) {
         </Button>
       </form>
       <p className="text-sm text-muted">
-        No passwords. We&apos;ll email you a link that signs you in.
+        No passwords. We email a link and a 6-digit code.
       </p>
     </div>
   )
