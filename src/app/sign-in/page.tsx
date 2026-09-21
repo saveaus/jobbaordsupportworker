@@ -14,6 +14,7 @@ export default async function SignInPage({
     ? params.next
     : "/"
   const linkFailed = params.error === "link"
+  const passwordFailed = params.error === "password"
 
   const user = await getSessionUser()
   if (user) redirect(next)
@@ -22,8 +23,12 @@ export default async function SignInPage({
     <div className="flex flex-col gap-8">
       <h1 className="text-h1">Sign in</h1>
       <p className="max-w-prose">
-        Apply for support work jobs. No password. We email a link that signs you in.
+        Apply for support work jobs. Sign in with email and password, or email a
+        link.
       </p>
+      {passwordFailed ? (
+        <p className="text-error">That email or password is wrong.</p>
+      ) : null}
       {linkFailed ? (
         <p className="text-error">That sign-in link is invalid or has expired. Request a new one.</p>
       ) : null}

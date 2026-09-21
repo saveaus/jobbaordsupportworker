@@ -34,6 +34,7 @@ export async function POST(request: NextRequest) {
   const code = String(formData.get("code") ?? "")
   const email = String(formData.get("email") ?? "").trim()
   const token = String(formData.get("token") ?? "").trim()
+  const password = String(formData.get("password") ?? "")
   const rawType = String(formData.get("type") ?? "email")
   const type = OTP_TYPES.has(rawType as EmailOtpType)
     ? (rawType as EmailOtpType)
@@ -51,6 +52,12 @@ export async function POST(request: NextRequest) {
   } else if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     errorMessage = error?.message ?? null
+  } else if (email && password) {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+    errorMessage = error ? "password" : null
   } else if (email && token) {
     const { error } = await supabase.auth.verifyOtp({
       type: "email",
@@ -63,9 +70,10 @@ export async function POST(request: NextRequest) {
   }
 
   if (errorMessage) {
-    return applyCookies(
-      NextResponse.redirect(new URL("/sign-in?error=link", origin), 303)
-    )
+    const failed = new URL("/sign-in", origin)
+    failed.searchParams.set("error", errorMessage === "password" ? "password" : "link")
+    if (next !== "/") failed.searchParams.set("next", next)
+    return applyCookies(NextResponse.redirect(failed, 303))
   }
 
   const destination = await pathAfterSignIn(supabase, next)
