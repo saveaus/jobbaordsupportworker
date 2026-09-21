@@ -10,10 +10,10 @@ export { isSupabaseConfigured }
  * admin actions (those use the service client).
  */
 export async function createSupabaseServerClient() {
+  const cookieStore = await cookies()
   if (!isSupabaseConfigured())
     throw new Error("Supabase environment variables are not set.")
 
-  const cookieStore = await cookies()
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
