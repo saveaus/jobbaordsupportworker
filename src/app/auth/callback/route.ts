@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server"
 import type { EmailOtpType } from "@supabase/supabase-js"
-import { pathAfterSignIn } from "@/lib/auth-redirect"
+import { parseAccountKind, signInPath } from "@/lib/account-kind"
+import { AccountKindMismatchError, pathAfterSignIn } from "@/lib/auth-redirect"
 import { createSupabaseRouteClient } from "@/lib/supabase/route"
 
 const OTP_TYPES = new Set<EmailOtpType>([
@@ -11,6 +12,18 @@ const OTP_TYPES = new Set<EmailOtpType>([
   "email_change",
   "email",
 ])
+
+function failedUrl(
+  origin: string,
+  kind: ReturnType<typeof parseAccountKind>,
+  error: string,
+  next: string
+) {
+  const failed = new URL(signInPath(kind), origin)
+  failed.searchParams.set("error", error)
+  if (next !== "/" && kind === "applicant") failed.searchParams.set("next", next)
+  return failed
+}
 
 /**
  * GET: do not exchange the one-time token. Mail scanners consume GET links.
@@ -30,6 +43,7 @@ export async function POST(request: NextRequest) {
   const formData = await request.formData()
   const nextRaw = String(formData.get("next") ?? "/")
   const next = nextRaw.startsWith("/") ? nextRaw : "/"
+  const kind = parseAccountKind(String(formData.get("kind") ?? ""))
   const tokenHash = String(formData.get("token_hash") ?? "")
   const code = String(formData.get("code") ?? "")
   const email = String(formData.get("email") ?? "").trim()
@@ -70,14 +84,24 @@ export async function POST(request: NextRequest) {
   }
 
   if (errorMessage) {
-    const failed = new URL("/sign-in", origin)
-    failed.searchParams.set("error", errorMessage === "password" ? "password" : "link")
-    if (next !== "/") failed.searchParams.set("next", next)
-    return applyCookies(NextResponse.redirect(failed, 303))
+    const code = errorMessage === "password" ? "password" : "link"
+    return applyCookies(
+      NextResponse.redirect(failedUrl(origin, kind, code, next), 303)
+    )
   }
 
-  const destination = await pathAfterSignIn(supabase, next)
-  return applyCookies(
-    NextResponse.redirect(new URL(destination, origin), 303)
-  )
+  try {
+    const destination = await pathAfterSignIn(supabase, next, kind)
+    return applyCookies(
+      NextResponse.redirect(new URL(destination, origin), 303)
+    )
+  } catch (error) {
+    if (error instanceof AccountKindMismatchError) {
+      await supabase.auth.signOut()
+      return applyCookies(
+        NextResponse.redirect(failedUrl(origin, kind, "kind", next), 303)
+      )
+    }
+    throw error
+  }
 }

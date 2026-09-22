@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button"
 import { IconCheck } from "@/components/ui/icons"
 import { REQUIREMENTS } from "@/lib/constants"
 import { formatLocation } from "@/lib/format"
+import { verificationPercent } from "@/lib/verification"
+import { VerifiedScore } from "@/components/verified-score"
 import { createSupabaseServerClient } from "@/lib/supabase/server"
 import { getProviderForUser } from "@/lib/queries/provider"
 import { updateApplication, markFilled, renewJob } from "./actions"
@@ -54,7 +56,19 @@ export default async function JobApplicantsPage({ params }: AppPageProps) {
         .select("user_id, full_name, postcode, requirements, cv_path")
         .in("user_id", applicantIds)
     : { data: [] }
+  const { data: checks } = applicantIds.length
+    ? await supabase
+        .from("requirement_checks")
+        .select("user_id, requirement, status")
+        .in("user_id", applicantIds)
+    : { data: [] }
   const profileMap = new Map((profiles ?? []).map((p) => [p.user_id, p]))
+  const checksByUser = new Map<string, { status: string; requirement: string }[]>()
+  for (const check of checks ?? []) {
+    const list = checksByUser.get(check.user_id) ?? []
+    list.push(check)
+    checksByUser.set(check.user_id, list)
+  }
 
   const readOnly = job.status === "unpublished" || job.status === "expired"
 
@@ -102,8 +116,14 @@ export default async function JobApplicantsPage({ params }: AppPageProps) {
         <ul className="flex flex-col border-t border-line">
           {(applications ?? []).map(function renderApp(app) {
             const profile = profileMap.get(app.applicant_user_id)
+            const applicantChecks = checksByUser.get(app.applicant_user_id) ?? []
+            const verifiedCodes = new Set(
+              applicantChecks
+                .filter((check) => check.status === "verified")
+                .map((check) => check.requirement)
+            )
             const matches = (job.requirements as string[]).filter((req) =>
-              profile?.requirements?.includes(req)
+              verifiedCodes.has(req)
             )
             return (
               <li key={app.id} className="flex flex-col gap-3 border-b border-line py-5">
@@ -111,6 +131,7 @@ export default async function JobApplicantsPage({ params }: AppPageProps) {
                 <p className="text-sm text-muted">
                   {profile?.postcode} · {app.status}
                 </p>
+                <VerifiedScore percent={verificationPercent(applicantChecks)} />
                 {matches.length > 0 ? (
                   <ul className="flex flex-col gap-1">
                     {matches.map(function renderMatch(code) {
@@ -118,6 +139,7 @@ export default async function JobApplicantsPage({ params }: AppPageProps) {
                         <li key={code} className="flex items-center gap-2 text-sm">
                           <IconCheck />
                           {REQUIREMENTS[code as keyof typeof REQUIREMENTS]}
+                          <span className="font-mono text-sm text-night-25">Verified</span>
                         </li>
                       )
                     })}

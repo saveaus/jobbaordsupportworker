@@ -1,13 +1,20 @@
 "use client"
 
 import { useActionState } from "react"
+import type { AccountKind } from "@/lib/account-kind"
 import { Button } from "@/components/ui/button"
 import { Field, FormError } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Turnstile } from "@/components/turnstile"
 import { sendMagicLink, type SignInState } from "./actions"
 
-export function SignInForm({ next }: { next: string }) {
+export function SignInForm({
+  next,
+  kind,
+}: {
+  next: string
+  kind: AccountKind
+}) {
   const [state, formAction, isPending] = useActionState<SignInState, FormData>(
     sendMagicLink,
     {}
@@ -23,6 +30,7 @@ export function SignInForm({ next }: { next: string }) {
         <form action="/auth/callback" method="post" className="flex flex-col gap-6">
           <input type="hidden" name="email" value={state.email} />
           <input type="hidden" name="next" value={state.next ?? next} />
+          <input type="hidden" name="kind" value={kind} />
           <Field label="Code" htmlFor="token">
             <Input
               id="token"
@@ -62,7 +70,10 @@ export function SignInForm({ next }: { next: string }) {
           />
         </Field>
         <input type="hidden" name="next" value={next} />
-        <Button type="submit">Sign in</Button>
+        <input type="hidden" name="kind" value={kind} />
+        <Button type="submit">
+          {kind === "provider" ? "Sign in to hire" : "Sign in to apply"}
+        </Button>
       </form>
 
       <form action={formAction} className="flex flex-col gap-4">
@@ -79,6 +90,7 @@ export function SignInForm({ next }: { next: string }) {
           />
         </Field>
         <input type="hidden" name="next" value={next} />
+        <input type="hidden" name="kind" value={kind} />
         <Turnstile />
         <Button type="submit" variant="secondary" disabled={isPending}>
           {isPending ? "Sending link" : "Email me a sign-in link"}

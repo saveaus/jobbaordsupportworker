@@ -4,7 +4,7 @@ import { z } from "zod"
 import { createSupabaseServerClient } from "@/lib/supabase/server"
 import { checkRateLimit } from "@/lib/rate-limit"
 import { verifyTurnstile } from "@/lib/turnstile"
-import { accountKindFromNext } from "@/lib/account-kind"
+import { parseAccountKind } from "@/lib/account-kind"
 import { getRequestSiteUrl } from "@/lib/request-site-url"
 
 export interface SignInState {
@@ -17,6 +17,7 @@ export interface SignInState {
 const signInSchema = z.object({
   email: z.email(),
   next: z.string().startsWith("/").catch("/"),
+  kind: z.enum(["applicant", "provider"]).catch("applicant"),
 })
 
 export async function sendMagicLink(
@@ -26,12 +27,12 @@ export async function sendMagicLink(
   const parsed = signInSchema.safeParse({
     email: String(formData.get("email") ?? "").trim(),
     next: String(formData.get("next") ?? "/"),
+    kind: parseAccountKind(String(formData.get("kind") ?? "")),
   })
   if (!parsed.success)
     return { error: "Enter a valid email address." }
 
-  const { email, next } = parsed.data
-  const kind = accountKindFromNext(next)
+  const { email, next, kind } = parsed.data
 
   const isHuman = await verifyTurnstile(
     formData.get("cf-turnstile-response")?.toString()
@@ -54,7 +55,7 @@ export async function sendMagicLink(
     email,
     options: {
       shouldCreateUser: true,
-      emailRedirectTo: `${origin}/auth/confirm?next=${encodeURIComponent(next)}`,
+      emailRedirectTo: `${origin}/auth/confirm?kind=${kind}&next=${encodeURIComponent(next)}`,
       data: { account_kind: kind },
     },
   })

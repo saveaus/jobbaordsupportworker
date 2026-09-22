@@ -1,5 +1,23 @@
 import { describe, expect, it } from "vitest"
-import { accountKindFromNext, isCompleteApplicantProfile } from "./account-kind"
+import {
+  accountKindFromNext,
+  isCompleteApplicantProfile,
+  parseAccountKind,
+  signInPath,
+} from "./account-kind"
+
+describe("parseAccountKind", () => {
+  it("defaults to applicant", () => {
+    expect(parseAccountKind(undefined)).toBe("applicant")
+    expect(parseAccountKind("provider")).toBe("provider")
+  })
+
+  it("routes each kind to its own sign-in", () => {
+    expect(signInPath("applicant")).toBe("/sign-in")
+    expect(signInPath("provider")).toBe("/providers")
+  })
+})
+
 
 describe("accountKindFromNext", () => {
   it("treats job-board paths as applicant", () => {

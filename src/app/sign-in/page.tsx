@@ -1,10 +1,11 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { redirect } from "next/navigation"
-import { getSessionUser } from "@/lib/supabase/server"
+import { getAccountKind } from "@/lib/account"
+import { createSupabaseServerClient, getSessionUser } from "@/lib/supabase/server"
 import { SignInForm } from "./sign-in-form"
 
-export const metadata: Metadata = { title: "Sign in" }
+export const metadata: Metadata = { title: "Sign in to apply" }
 
 export default async function SignInPage({
   searchParams,
@@ -15,16 +16,36 @@ export default async function SignInPage({
     : "/"
   const linkFailed = params.error === "link"
   const passwordFailed = params.error === "password"
+  const kindFailed = params.error === "kind"
 
   const user = await getSessionUser()
-  if (user) redirect(next)
+  if (user) {
+    const supabase = await createSupabaseServerClient()
+    const kind = await getAccountKind(supabase)
+    if (kind === "provider") {
+      return (
+        <div className="flex max-w-prose flex-col gap-8">
+          <h1 className="text-h1">Sign in to apply</h1>
+          <p>
+            This login is a business account. Sign out and use a different email
+            to apply.
+          </p>
+          <form action="/auth/sign-out" method="post">
+            <button type="submit" className="inline-flex min-h-11 items-center underline">
+              Sign out
+            </button>
+          </form>
+        </div>
+      )
+    }
+    redirect(next)
+  }
 
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="text-h1">Sign in</h1>
+      <h1 className="text-h1">Sign in to apply</h1>
       <p className="max-w-prose">
-        Apply for support work jobs. Sign in with email and password, or email a
-        link.
+        Applicant accounts only. Hire from a separate business login.
       </p>
       {passwordFailed ? (
         <p className="text-error">That email or password is wrong.</p>
@@ -32,11 +53,16 @@ export default async function SignInPage({
       {linkFailed ? (
         <p className="text-error">That sign-in link is invalid or has expired. Request a new one.</p>
       ) : null}
-      <SignInForm next={next} />
+      {kindFailed ? (
+        <p className="text-error">
+          That email is a business account. Sign in to hire instead.
+        </p>
+      ) : null}
+      <SignInForm next={next} kind="applicant" />
       <p className="text-sm text-muted">
         Posting jobs?{" "}
         <Link href="/providers" className="underline">
-          Sign in as a business
+          Sign in to hire
         </Link>
         .
       </p>

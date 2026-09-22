@@ -14,9 +14,10 @@ export default async function ConfirmSignInPage({
   const next = typeof params.next === "string" && params.next.startsWith("/")
     ? params.next
     : "/"
+  const kind = params.kind === "provider" ? "provider" : "applicant"
 
   if (!tokenHash && !code)
-    redirect("/sign-in?error=link")
+    redirect(kind === "provider" ? "/providers?error=link" : "/sign-in?error=link")
 
   return (
     <div className="flex max-w-form flex-col gap-8">
@@ -29,6 +30,7 @@ export default async function ConfirmSignInPage({
         <input type="hidden" name="code" value={code} />
         <input type="hidden" name="type" value={type} />
         <input type="hidden" name="next" value={next} />
+        <input type="hidden" name="kind" value={kind} />
         <Button type="submit">Sign in</Button>
       </form>
     </div>

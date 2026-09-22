@@ -23,6 +23,7 @@ export default async function AdminPage() {
     { href: "/admin/reports", label: "Reports" },
     { href: "/admin/imports", label: "CSV import and block list" },
     { href: "/admin/providers", label: "Providers" },
+    { href: "/admin/verifications", label: "Requirement checks" },
   ]
 
   return (

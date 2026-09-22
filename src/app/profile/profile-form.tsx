@@ -4,7 +4,7 @@ import { useActionState, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Field, FormError, FormSuccess } from "@/components/ui/field"
 import { Checkbox, Input, Textarea } from "@/components/ui/input"
-import { REQUIREMENTS, WORK_TYPES } from "@/lib/constants"
+import { WORK_TYPES } from "@/lib/constants"
 import { createSupabaseBrowserClient } from "@/lib/supabase/client"
 import type { ProfileRecord } from "@/lib/types"
 import { saveProfile, type ProfileState } from "./actions"
@@ -84,22 +84,6 @@ export function ProfileForm({
                 name="workTypes"
                 value={value}
                 defaultChecked={profile?.work_types?.includes(value as never)}
-              />
-              {label}
-            </label>
-          )
-        })}
-      </fieldset>
-
-      <fieldset className="flex flex-col gap-2">
-        <legend>Requirements you hold</legend>
-        {Object.entries(REQUIREMENTS).map(function renderReq([value, label]) {
-          return (
-            <label key={value} className="flex min-h-11 items-center gap-2">
-              <Checkbox
-                name="requirements"
-                value={value}
-                defaultChecked={profile?.requirements?.includes(value as never)}
               />
               {label}
             </label>

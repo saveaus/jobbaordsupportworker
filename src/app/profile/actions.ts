@@ -56,7 +56,12 @@ export async function saveProfile(
 
   const location = await resolveLocation(supabase, parsed.data.postcode)
   const workTypes = formData.getAll("workTypes").map(String)
-  const requirements = formData.getAll("requirements").map(String)
+  const { data: verified } = await supabase
+    .from("requirement_checks")
+    .select("requirement")
+    .eq("user_id", user.id)
+    .eq("status", "verified")
+  const requirements = (verified ?? []).map((row) => row.requirement)
 
   const { data: existing } = await supabase
     .from("profiles")

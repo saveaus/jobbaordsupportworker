@@ -8,6 +8,8 @@ import {
   getApplicantProfile,
 } from "@/lib/account"
 import { AccountNav } from "@/components/site/account-nav"
+import { VerifiedScore } from "@/components/verified-score"
+import { verificationPercent } from "@/lib/verification"
 
 export const metadata: Metadata = { title: "Account" }
 
@@ -23,12 +25,21 @@ export default async function AccountPage() {
   const { isComplete } = kind === "applicant"
     ? await getApplicantProfile(supabase)
     : { isComplete: true }
+  const { data: checks } = kind === "applicant"
+    ? await supabase
+        .from("requirement_checks")
+        .select("status")
+        .eq("user_id", user.id)
+    : { data: [] }
 
   return (
     <div className="flex flex-col gap-8">
       <AccountNav kind={kind} />
       <h1 className="text-h1">Account</h1>
       <p className="font-mono text-sm text-muted">{user.email}</p>
+      {kind === "applicant" ? (
+        <VerifiedScore percent={verificationPercent(checks ?? [])} />
+      ) : null}
       {kind === "applicant" && !isComplete ? (
         <p>
           Finish your profile to apply. Providers only see it after you apply.{" "}

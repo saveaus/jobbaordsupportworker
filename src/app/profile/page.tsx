@@ -1,10 +1,13 @@
 import type { Metadata } from "next"
-import { redirect } from "next/navigation"
 import { ProfileForm } from "./profile-form"
+import { RequirementChecks } from "./requirement-checks"
+import { VerifiedScore } from "@/components/verified-score"
 import type { ProfileRecord } from "@/lib/types"
 import type { AppPageProps } from "@/lib/page-props"
 import { requireApplicant } from "@/lib/account"
 import { AccountNav } from "@/components/site/account-nav"
+import type { RequirementCheck } from "@/lib/verification"
+import { verificationPercent } from "@/lib/verification"
 
 export const metadata: Metadata = { title: "Profile" }
 
@@ -14,18 +17,24 @@ export default async function ProfilePage({ searchParams }: AppPageProps) {
 
   const { supabase, user } = await requireApplicant(`/profile`)
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("user_id", user.id)
-    .maybeSingle()
+  const [{ data: profile }, { data: checks }] = await Promise.all([
+    supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle(),
+    supabase
+      .from("requirement_checks")
+      .select("requirement, status, evidence_path, review_note")
+      .eq("user_id", user.id),
+  ])
 
   const isApplyNext = next.startsWith("/jobs/")
+  const percent = verificationPercent(checks ?? [])
 
   return (
     <div className="flex flex-col gap-8">
       <AccountNav kind="applicant" />
-      <h1 className="text-h1">{profile ? "Profile" : "Set up your profile"}</h1>
+      <div className="flex flex-col gap-2">
+        <h1 className="text-h1">{profile ? "Profile" : "Set up your profile"}</h1>
+        <VerifiedScore percent={percent} />
+      </div>
       <p className="max-w-prose">
         {isApplyNext
           ? "Name, email and postcode are required before you can apply. Providers only see this after you apply."
@@ -36,6 +45,7 @@ export default async function ProfilePage({ searchParams }: AppPageProps) {
         profile={(profile as ProfileRecord | null) ?? null}
         next={next}
       />
+      <RequirementChecks checks={(checks ?? []) as RequirementCheck[]} />
     </div>
   )
 }

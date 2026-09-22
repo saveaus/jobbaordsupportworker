@@ -45,7 +45,7 @@ export async function SiteHeader() {
           {!user ? (
             <>
               <Link href="/sign-in" className="inline-flex min-h-11 items-center underline">
-                Sign in
+                Sign in to apply
               </Link>
               <Link
                 href="/providers"

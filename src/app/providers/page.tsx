@@ -6,9 +6,16 @@ import { getProviderForUser } from "@/lib/queries/provider"
 import { SignInForm } from "@/app/sign-in/sign-in-form"
 import { getAccountKind } from "@/lib/account"
 
-export const metadata: Metadata = { title: "Post a job" }
+export const metadata: Metadata = { title: "Sign in to hire" }
 
-export default async function ProvidersPage() {
+export default async function ProvidersPage({
+  searchParams,
+}: PageProps<"/providers">) {
+  const params = await searchParams
+  const passwordFailed = params.error === "password"
+  const linkFailed = params.error === "link"
+  const kindFailed = params.error === "kind"
+
   const supabase = await createSupabaseServerClient()
   const {
     data: { user },
@@ -19,9 +26,10 @@ export default async function ProvidersPage() {
     if (kind === "applicant") {
       return (
         <div className="flex max-w-prose flex-col gap-8">
-          <h1 className="text-h1">Post a job</h1>
+          <h1 className="text-h1">Sign in to hire</h1>
           <p>
-            This account is for applying. Sign out and use a work email to hire.
+            This login is an applicant account. Sign out and use a work email to
+            hire.
           </p>
           <p className="text-sm text-muted">
             <Link href="/account" className="underline">
@@ -42,7 +50,7 @@ export default async function ProvidersPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="text-h1">Post a job</h1>
+      <h1 className="text-h1">Sign in to hire</h1>
       <div className="flex max-w-prose flex-col gap-4">
         <p>
           Post unlimited support work jobs and receive applications with profiles
@@ -52,15 +60,26 @@ export default async function ProvidersPage() {
           $249 a month plus GST, or $2,490 a year plus GST. The first 14 days are
           free; a card is required to start and you can cancel anytime.
         </p>
-        <p className="text-sm text-muted">
-          Sign in with your work email to get started.
+        <p className="font-mono text-sm text-night-25">
+          Business accounts only. Apply from a separate login.
         </p>
       </div>
-      <SignInForm next="/providers/register" />
+      {passwordFailed ? (
+        <p className="text-error">That email or password is wrong.</p>
+      ) : null}
+      {linkFailed ? (
+        <p className="text-error">That sign-in link is invalid or has expired. Request a new one.</p>
+      ) : null}
+      {kindFailed ? (
+        <p className="text-error">
+          That email is an applicant account. Sign in to apply instead.
+        </p>
+      ) : null}
+      <SignInForm next="/providers/register" kind="provider" />
       <p className="text-sm text-muted">
         Looking for work?{" "}
         <Link href="/sign-in" className="underline">
-          Sign in as an applicant
+          Sign in to apply
         </Link>
         .
       </p>
