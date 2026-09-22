@@ -16,7 +16,7 @@ import { createSupabaseServerClient, getSessionUser, isSupabaseConfigured } from
 import { getLiveJob, searchJobs } from "@/lib/queries/jobs"
 import { getSavedJobIds } from "@/lib/queries/saved-jobs"
 import { getStoredLocation } from "@/lib/location"
-import { searchHref, type SearchQuery } from "@/lib/search-url"
+import { parseSearchRadius, searchHref, type SearchQuery } from "@/lib/search-url"
 
 export const metadata: Metadata = { title: siteConfig.tagline }
 
@@ -37,6 +37,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
   const workType = typeof params.work === "string" && isWorkType(params.work) ? params.work : undefined
   const roleCategory =
     typeof params.category === "string" && isRoleCategory(params.category) ? params.category : undefined
+  const radius = parseSearchRadius(typeof params.radius === "string" ? params.radius : undefined)
   const page = Math.max(1, Number(params.page ?? 1) || 1)
   const requestedSlug = typeof params.job === "string" ? params.job : ""
 
@@ -50,6 +51,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
     state,
     work: workType,
     category: roleCategory,
+    radius,
     page,
   }
 
@@ -67,6 +69,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
       state,
       workType,
       roleCategory,
+      radiusKm: location ? radius : undefined,
       limit,
       offset,
     })
@@ -81,11 +84,11 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
     }
   }
 
-  const hasFilters = Boolean(keyword || state || workType || roleCategory)
+  const hasFilters = Boolean(keyword || state || workType || roleCategory || location)
   const locationLabel = location ? `${location.suburb} ${location.postcode}` : ""
   const selectedSlug = selected?.slug ?? ""
   const countLabel = location
-    ? `${totalCount.toLocaleString("en-AU")} jobs near ${locationLabel}`
+    ? `${totalCount.toLocaleString("en-AU")} jobs within ${radius} km of ${locationLabel}`
     : `${totalCount.toLocaleString("en-AU")} jobs`
 
   return (
@@ -97,6 +100,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
         state={state}
         workType={workType}
         roleCategory={roleCategory}
+        radius={radius}
       />
       {!location ? (
         <p className="text-sm text-muted">Enter your suburb or postcode to see jobs near you.</p>

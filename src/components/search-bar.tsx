@@ -1,4 +1,4 @@
-import { AU_STATES, ROLE_CATEGORIES, WORK_TYPES } from "@/lib/constants"
+import { AU_STATES, DEFAULT_SEARCH_RADIUS_KM, ROLE_CATEGORIES, SEARCH_RADIUS_KM, WORK_TYPES } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
 import { Input, Select } from "@/components/ui/input"
 import { applySearch } from "@/app/search-actions"
@@ -9,6 +9,7 @@ interface SearchBarProps {
   state?: string
   workType?: string
   roleCategory?: string
+  radius?: number
 }
 
 export function SearchBar({
@@ -17,6 +18,7 @@ export function SearchBar({
   state,
   workType,
   roleCategory,
+  radius,
 }: SearchBarProps) {
   return (
     <form action={applySearch} className="flex flex-col gap-3">
@@ -86,6 +88,20 @@ export function SearchBar({
               return (
                 <option key={value} value={value}>
                   {label}
+                </option>
+              )
+            })}
+          </Select>
+        </div>
+        <div className="w-40">
+          <label className="sr-only" htmlFor="radius">
+            Distance from suburb
+          </label>
+          <Select id="radius" name="radius" defaultValue={String(radius ?? DEFAULT_SEARCH_RADIUS_KM)}>
+            {SEARCH_RADIUS_KM.map(function renderRadius(km) {
+              return (
+                <option key={km} value={km}>
+                  Within {km} km
                 </option>
               )
             })}

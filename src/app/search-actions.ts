@@ -4,6 +4,7 @@ import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { createSupabaseServerClient } from "@/lib/supabase/server"
 import { LOCATION_COOKIE, resolveLocation } from "@/lib/location"
+import { parseSearchRadius, searchHref } from "@/lib/search-url"
 
 /**
  * Search submit: remembers the location (cookie, one year) and
@@ -15,6 +16,7 @@ export async function applySearch(formData: FormData) {
   const state = String(formData.get("state") ?? "")
   const workType = String(formData.get("work") ?? "")
   const roleCategory = String(formData.get("category") ?? "")
+  const radius = parseSearchRadius(String(formData.get("radius") ?? ""))
 
   const cookieStore = await cookies()
   if (locationText) {
@@ -31,11 +33,11 @@ export async function applySearch(formData: FormData) {
     cookieStore.delete(LOCATION_COOKIE)
   }
 
-  const params = new URLSearchParams()
-  if (keyword) params.set("q", keyword)
-  if (state) params.set("state", state)
-  if (workType) params.set("work", workType)
-  if (roleCategory) params.set("category", roleCategory)
-  const query = params.toString()
-  redirect(query ? `/?${query}` : "/")
+  redirect(searchHref({
+    q: keyword || undefined,
+    state: state || undefined,
+    work: workType || undefined,
+    category: roleCategory || undefined,
+    radius,
+  }))
 }

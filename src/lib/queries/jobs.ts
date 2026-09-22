@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
-import type { AuState, RoleCategory, WorkType } from "@/lib/constants"
+import { DEFAULT_SEARCH_RADIUS_KM, type AuState, type RoleCategory, type WorkType } from "@/lib/constants"
 import type { JobRecord } from "@/lib/types"
 
 export interface JobSearchFilters {
@@ -9,6 +9,7 @@ export interface JobSearchFilters {
   state?: AuState
   workType?: WorkType
   roleCategory?: RoleCategory
+  radiusKm?: number
   limit: number
   offset: number
 }
@@ -39,8 +40,8 @@ export interface JobSearchResult {
 
 /**
  * Calls the search_jobs RPC. The database enforces the signed-out cap
- * of 10 rows and blocks signed-out pagination regardless of the values
- * passed here.
+ * of 10 rows, blocks signed-out pagination, and when lat/lng are set
+ * only returns live jobs within the requested radius (default 50km).
  */
 export async function searchJobs(
   supabase: SupabaseClient,
@@ -56,6 +57,7 @@ export async function searchJobs(
       p_role_category: filters.roleCategory ?? null,
       p_limit: filters.limit,
       p_offset: filters.offset,
+      p_radius_km: filters.radiusKm ?? DEFAULT_SEARCH_RADIUS_KM,
     })
     if (error) {
       console.error("search_jobs failed", error.message, error.code, error.details)

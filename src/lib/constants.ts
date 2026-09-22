@@ -34,6 +34,9 @@ export const SHIFT_TYPES = {
 
 export const AU_STATES = ["NSW", "VIC", "QLD", "WA", "SA", "TAS", "ACT", "NT"] as const
 
+export const SEARCH_RADIUS_KM = [10, 25, 50, 100] as const
+export const DEFAULT_SEARCH_RADIUS_KM = 50
+
 export const JOB_STATUS_LABELS = {
   draft: "Draft",
   pending_approval: "Pending approval",
@@ -57,3 +60,4 @@ export type RoleCategory = keyof typeof ROLE_CATEGORIES
 export type RequirementCode = keyof typeof REQUIREMENTS
 export type ShiftCode = keyof typeof SHIFT_TYPES
 export type AuState = (typeof AU_STATES)[number]
+export type SearchRadiusKm = (typeof SEARCH_RADIUS_KM)[number]
