@@ -140,4 +140,20 @@ export async function syncSubscription(subscriptionId: string) {
     await republishUnpublishedJobs(provider.id)
 }
 
+export async function syncCheckoutSession(
+  sessionId: string,
+  expectedCustomerId: string | null
+) {
+  if (!sessionId.startsWith("cs_")) return
+  const stripe = getStripe()
+  const session = await stripe.checkout.sessions.retrieve(sessionId)
+  const sessionCustomer =
+    typeof session.customer === "string" ? session.customer : session.customer?.id
+  if (expectedCustomerId && sessionCustomer && sessionCustomer !== expectedCustomerId)
+    return
+  const subscription = session.subscription
+  const subscriptionId = typeof subscription === "string" ? subscription : subscription?.id
+  if (subscriptionId) await syncSubscription(subscriptionId)
+}
+
 export { snapshotFromRow }

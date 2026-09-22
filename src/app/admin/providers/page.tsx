@@ -4,6 +4,7 @@ import { createSupabaseServiceClient } from "@/lib/supabase/service"
 import { Button } from "@/components/ui/button"
 import { Table, Td, Th } from "@/components/ui/table"
 import { suspendProvider } from "./actions"
+import { PageNav } from "@/components/site/page-nav"
 
 export const metadata: Metadata = { title: "Admin providers" }
 
@@ -19,6 +20,7 @@ export default async function AdminProvidersPage() {
 
   return (
     <div className="flex flex-col gap-8">
+      <PageNav backHref="/admin" backLabel="Back to admin" />
       <h1 className="text-h1">Providers</h1>
       <Table>
         <thead>

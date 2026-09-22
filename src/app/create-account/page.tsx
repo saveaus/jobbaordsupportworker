@@ -5,6 +5,7 @@ import { safeNext } from "@/lib/account-kind"
 import { pathAfterSignIn } from "@/lib/auth-redirect"
 import { createSupabaseServerClient, getSessionUser } from "@/lib/supabase/server"
 import { CreateAccountForm } from "./create-account-form"
+import { PageNav } from "@/components/site/page-nav"
 
 export const metadata: Metadata = { title: "Create account" }
 
@@ -22,6 +23,7 @@ export default async function CreateAccountPage({
 
   return (
     <div className="flex flex-col gap-8">
+      <PageNav backHref="/" backLabel="Back to jobs" />
       <h1 className="text-h1">Create account</h1>
       <p className="max-w-prose">
         One account. Then choose to apply or hire.

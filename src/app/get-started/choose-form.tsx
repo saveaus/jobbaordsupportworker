@@ -1,5 +1,7 @@
+"use client"
+
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { chooseAccountKind } from "./actions"
 
 export function ChooseForm({
   next,
@@ -8,31 +10,44 @@ export function ChooseForm({
   next: string
   intent: "apply" | "hire"
 }) {
+  const [pending, setPending] = useState(false)
   const hireFirst = intent === "hire"
 
+  function handleSubmit() {
+    setPending(true)
+  }
+
   const apply = (
-    <form action={chooseAccountKind}>
+    <form
+      action="/get-started/choose"
+      method="post"
+      onSubmit={handleSubmit}
+    >
       <input type="hidden" name="next" value={next} />
       <input type="hidden" name="kind" value="applicant" />
       <div className="flex flex-col gap-3 border border-line p-6">
         <h2 className="text-h2">Apply for jobs</h2>
         <p>Build a profile. Apply. Start.</p>
-        <Button type="submit" variant={hireFirst ? "secondary" : "primary"}>
-          I want to apply
+        <Button type="submit" variant={hireFirst ? "secondary" : "primary"} disabled={pending}>
+          {pending ? "Continuing" : "I want to apply"}
         </Button>
       </div>
     </form>
   )
 
   const hire = (
-    <form action={chooseAccountKind}>
+    <form
+      action="/get-started/choose"
+      method="post"
+      onSubmit={handleSubmit}
+    >
       <input type="hidden" name="next" value={next} />
       <input type="hidden" name="kind" value="provider" />
       <div className="flex flex-col gap-3 border border-line p-6">
         <h2 className="text-h2">Hire support workers</h2>
         <p>Post jobs. Review applicants.</p>
-        <Button type="submit" variant={hireFirst ? "primary" : "secondary"}>
-          I want to hire
+        <Button type="submit" variant={hireFirst ? "primary" : "secondary"} disabled={pending}>
+          {pending ? "Continuing" : "I want to hire"}
         </Button>
       </div>
     </form>

@@ -1,11 +1,11 @@
 import type { Metadata } from "next"
-import Link from "next/link"
 import { redirect } from "next/navigation"
 import { ButtonLink } from "@/components/ui/button"
 import { createSupabaseServerClient } from "@/lib/supabase/server"
 import { getProviderForUser } from "@/lib/queries/provider"
 import { getAccountKind } from "@/lib/account"
 import { choosePath, createAccountPath, signInPath } from "@/lib/account-kind"
+import { PageNav } from "@/components/site/page-nav"
 
 export const metadata: Metadata = { title: "Hire support workers" }
 
@@ -21,14 +21,10 @@ export default async function ProvidersPage() {
     if (kind === "applicant") {
       return (
         <div className="flex max-w-prose flex-col gap-8">
+          <PageNav backHref="/account" backLabel="Back to your account" />
           <h1 className="text-h1">Hire support workers</h1>
           <p>
             This account is set up to apply. Post jobs from a hiring account.
-          </p>
-          <p className="text-sm text-muted">
-            <Link href="/account" className="underline">
-              Back to your account
-            </Link>
           </p>
         </div>
       )
@@ -39,6 +35,7 @@ export default async function ProvidersPage() {
 
   return (
     <div className="flex flex-col gap-8">
+      <PageNav backHref="/" backLabel="Back to jobs" />
       <h1 className="text-h1">Hire support workers</h1>
       <div className="flex max-w-prose flex-col gap-4">
         <p>

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Table, Td, Th } from "@/components/ui/table"
 import { decideClaim } from "./actions"
 import { firstRelation } from "@/lib/relation"
+import { PageNav } from "@/components/site/page-nav"
 
 export const metadata: Metadata = { title: "Admin claims" }
 
@@ -19,6 +20,7 @@ export default async function AdminClaimsPage() {
 
   return (
     <div className="flex flex-col gap-8">
+      <PageNav backHref="/admin" backLabel="Back to admin" />
       <h1 className="text-h1">Claims</h1>
       <Table>
         <thead>

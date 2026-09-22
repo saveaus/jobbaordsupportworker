@@ -5,6 +5,7 @@ import { createSupabaseServiceClient } from "@/lib/supabase/service"
 import { Button } from "@/components/ui/button"
 import { REQUIREMENTS, type RequirementCode } from "@/lib/constants"
 import { reviewRequirement } from "./actions"
+import { PageNav } from "@/components/site/page-nav"
 
 export const metadata: Metadata = { title: "Requirement checks" }
 
@@ -43,6 +44,7 @@ export default async function AdminVerificationsPage() {
           Admin
         </Link>
       </p>
+      <PageNav backHref="/admin" backLabel="Back to admin" />
       <h1 className="text-h1">Requirement checks</h1>
       {rows.length === 0 ? (
         <p className="text-muted">No checks waiting.</p>

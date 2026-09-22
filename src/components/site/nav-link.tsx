@@ -20,7 +20,7 @@ export function NavLink({
     <Link
       href={href as never}
       aria-current={isCurrent ? "page" : undefined}
-      className={`inline-flex min-h-11 items-center ${isCurrent ? "font-semibold" : "underline"}`}
+      className={`inline-flex min-h-11 items-center ${isCurrent ? "font-semibold" : "hover:underline"}`}
     >
       {children}
     </Link>

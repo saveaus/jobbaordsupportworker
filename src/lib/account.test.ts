@@ -45,6 +45,7 @@ describe("accountKindFromNext", () => {
     expect(accountKindFromNext("/jobs/some-slug")).toBe("applicant")
     expect(accountKindFromNext("/profile?next=/jobs/x")).toBe("applicant")
     expect(accountKindFromNext("/applications")).toBe("applicant")
+    expect(accountKindFromNext("/saved")).toBe("applicant")
     expect(accountKindFromNext("/alerts")).toBe("applicant")
   })
 

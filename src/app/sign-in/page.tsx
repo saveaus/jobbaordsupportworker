@@ -5,6 +5,7 @@ import { safeNext } from "@/lib/account-kind"
 import { pathAfterSignIn } from "@/lib/auth-redirect"
 import { createSupabaseServerClient, getSessionUser } from "@/lib/supabase/server"
 import { SignInForm } from "./sign-in-form"
+import { PageNav } from "@/components/site/page-nav"
 
 export const metadata: Metadata = { title: "Sign in" }
 
@@ -24,6 +25,7 @@ export default async function SignInPage({
 
   return (
     <div className="flex flex-col gap-8">
+      <PageNav backHref="/" backLabel="Back to jobs" />
       <h1 className="text-h1">Sign in</h1>
       <p className="max-w-prose">
         Use the email and password for your account.

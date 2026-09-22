@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
 import type { AuState, RoleCategory, WorkType } from "@/lib/constants"
+import type { JobRecord } from "@/lib/types"
 
 export interface JobSearchFilters {
   keyword?: string
@@ -66,4 +67,17 @@ export async function searchJobs(
     console.error("search_jobs threw", error)
     return { rows: [], totalCount: 0 }
   }
+}
+
+export async function getLiveJob(
+  supabase: SupabaseClient,
+  slug: string
+): Promise<JobRecord | null> {
+  const { data } = await supabase
+    .from("jobs")
+    .select("*")
+    .eq("slug", slug)
+    .eq("status", "live")
+    .maybeSingle()
+  return (data as JobRecord | null) ?? null
 }

@@ -87,11 +87,11 @@ export function RegisterForm({ defaultEmail }: { defaultEmail: string }) {
 
       <Turnstile />
       <Button type="submit" disabled={isPending}>
-        {isPending ? "Creating account" : "Continue to payment details"}
+        {isPending ? "Creating account" : "Continue"}
       </Button>
       <p className="text-sm text-muted">
-        Next step: card details for the 14-day free trial. $249 a month plus GST
-        after the trial. Cancel anytime.
+        Next: write the job, then start the 14-day trial. $249 a month plus GST
+        after. Cancel anytime.
       </p>
     </form>
   )

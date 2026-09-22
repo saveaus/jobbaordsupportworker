@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation"
 
 export default function BillingStartPage() {
-  redirect("/billing")
+  redirect("/jobs/new")
 }

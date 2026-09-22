@@ -5,6 +5,7 @@ import { safeNext, signInPath } from "@/lib/account-kind"
 import { pathAfterKind } from "@/lib/auth-redirect"
 import { createSupabaseServerClient, getSessionUser } from "@/lib/supabase/server"
 import { ChooseForm } from "./choose-form"
+import { PageNav } from "@/components/site/page-nav"
 
 export const metadata: Metadata = { title: "Apply or hire" }
 
@@ -24,6 +25,7 @@ export default async function GetStartedPage({
 
   return (
     <div className="flex flex-col gap-8">
+      <PageNav backHref="/" backLabel="Back to jobs" />
       <h1 className="text-h1">Apply or hire</h1>
       <p className="max-w-prose">
         One account. Pick how you will use it.

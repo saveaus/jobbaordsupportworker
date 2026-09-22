@@ -49,3 +49,12 @@ export function IconClose({ className }: IconProps) {
     </svg>
   )
 }
+
+export function IconBookmark({ className, filled = false }: IconProps & { filled?: boolean }) {
+  return (
+    <svg {...iconAttrs} className={className} fill={filled ? "currentColor" : "none"}>
+      <path d="M4 2.5h8v11.5L8 11.5 4 14V2.5z" />
+    </svg>
+  )
+}
+

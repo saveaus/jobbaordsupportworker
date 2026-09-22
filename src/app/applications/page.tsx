@@ -6,7 +6,7 @@ import { APPLICATION_STATUS_LABELS } from "@/lib/constants"
 import { formatDate } from "@/lib/format"
 import { firstRelation } from "@/lib/relation"
 import { requireApplicant } from "@/lib/account"
-import { AccountNav } from "@/components/site/account-nav"
+import { PageNav } from "@/components/site/page-nav"
 
 export const metadata: Metadata = { title: "My applications" }
 
@@ -23,7 +23,7 @@ export default async function ApplicationsPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <AccountNav kind="applicant" />
+      <PageNav backHref="/" backLabel="Back to jobs" />
       <h1 className="text-h1">My applications</h1>
       {rows.length === 0 ? (
         <EmptyState

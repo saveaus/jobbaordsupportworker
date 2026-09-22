@@ -8,11 +8,12 @@ import {
   getAccountKind,
   getApplicantProfile,
 } from "@/lib/account"
-import { AccountNav } from "@/components/site/account-nav"
+import { accountLinks } from "@/components/site/account-links"
+import { PageNav } from "@/components/site/page-nav"
 import { VerifiedScore } from "@/components/verified-score"
 import { verificationPercent } from "@/lib/verification"
 
-export const metadata: Metadata = { title: "Account" }
+export const metadata: Metadata = { title: "My profile" }
 
 export default async function AccountPage() {
   const supabase = await createSupabaseServerClient()
@@ -34,17 +35,22 @@ export default async function AccountPage() {
         .eq("user_id", user.id)
     : { data: [] }
 
+  const homeHref = kind === "provider" ? "/dashboard" : "/"
+  const homeLabel = kind === "provider" ? "Job posts" : "Jobs"
+
   return (
     <div className="flex flex-col gap-8">
-      <AccountNav kind={kind} />
-      <h1 className="text-h1">Account</h1>
-      <p className="font-mono text-sm text-muted">{user.email}</p>
-      {kind === "applicant" ? (
-        <VerifiedScore percent={verificationPercent(checks ?? [])} />
-      ) : null}
+      <PageNav backHref={homeHref} backLabel={`Back to ${homeLabel.toLowerCase()}`} />
+      <div className="flex flex-col gap-2">
+        <h1 className="text-h1">My profile</h1>
+        <p className="font-mono text-sm text-muted">{user.email}</p>
+        {kind === "applicant" ? (
+          <VerifiedScore percent={verificationPercent(checks ?? [])} />
+        ) : null}
+      </div>
       {kind === "applicant" && !isComplete ? (
         <p>
-          Finish your profile to apply. Providers only see it after you apply.{" "}
+          Finish your profile to apply.{" "}
           <Link href="/profile" className="underline">
             Open profile
           </Link>
@@ -60,8 +66,19 @@ export default async function AccountPage() {
           .
         </p>
       ) : null}
+      <ul className="flex max-w-form flex-col border-t border-line">
+        {accountLinks(kind).map(function renderLink(link) {
+          return (
+            <li key={link.href} className="border-b border-line">
+              <Link href={link.href} className="flex min-h-11 items-center hover:underline">
+                {link.label}
+              </Link>
+            </li>
+          )
+        })}
+      </ul>
       <form action="/auth/sign-out" method="post">
-        <button type="submit" className="inline-flex min-h-11 items-center underline">
+        <button type="submit" className="inline-flex min-h-11 items-center hover:underline">
           Sign out
         </button>
       </form>

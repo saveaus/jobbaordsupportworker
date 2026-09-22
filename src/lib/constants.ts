@@ -20,12 +20,22 @@ export const REQUIREMENTS = {
   ndis_screening: "NDIS Worker Screening",
   wwcc: "Working with Children Check",
   first_aid: "First Aid/CPR",
-  qualification: "Qualification",
+  qualification: "Cert III or IV",
+} as const
+
+export const SHIFT_TYPES = {
+  mornings: "Mornings",
+  afternoons: "Afternoons",
+  evenings: "Evenings",
+  overnight: "Overnight",
+  sleepover: "Sleepover",
+  weekends: "Weekends",
 } as const
 
 export const AU_STATES = ["NSW", "VIC", "QLD", "WA", "SA", "TAS", "ACT", "NT"] as const
 
 export const JOB_STATUS_LABELS = {
+  draft: "Draft",
   pending_approval: "Pending approval",
   live: "Live",
   filled: "Filled",
@@ -45,4 +55,5 @@ export const APPLICATION_STATUS_LABELS = {
 export type WorkType = keyof typeof WORK_TYPES
 export type RoleCategory = keyof typeof ROLE_CATEGORIES
 export type RequirementCode = keyof typeof REQUIREMENTS
+export type ShiftCode = keyof typeof SHIFT_TYPES
 export type AuState = (typeof AU_STATES)[number]

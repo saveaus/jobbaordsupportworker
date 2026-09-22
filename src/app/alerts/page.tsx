@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import { EmptyState } from "@/components/ui/empty-state"
 import { AlertForm } from "./alert-form"
 import { requireApplicant } from "@/lib/account"
-import { AccountNav } from "@/components/site/account-nav"
+import { PageNav } from "@/components/site/page-nav"
 
 export const metadata: Metadata = { title: "Job alerts" }
 
@@ -22,7 +22,7 @@ export default async function AlertsPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <AccountNav kind="applicant" />
+      <PageNav backHref="/" backLabel="Back to jobs" />
       <h1 className="text-h1">Job alerts</h1>
       <p className="max-w-prose">
         Daily or weekly email matching your postcode, a 50km radius, and work type.

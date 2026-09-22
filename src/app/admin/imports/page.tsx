@@ -8,6 +8,7 @@ import { Table, Td, Th } from "@/components/ui/table"
 import { ImportForm } from "./import-form"
 import { addBlock } from "./actions"
 import type { AppPageProps } from "@/lib/page-props"
+import { PageNav } from "@/components/site/page-nav"
 
 export const metadata: Metadata = { title: "Admin imports" }
 
@@ -27,6 +28,7 @@ export default async function AdminImportsPage({ searchParams }: AppPageProps) {
 
   return (
     <div className="flex flex-col gap-8">
+      <PageNav backHref="/admin" backLabel="Back to admin" />
       <h1 className="text-h1">CSV import</h1>
       <p className="max-w-prose text-sm text-muted">
         Columns: title, provider, suburb, state, work type, pay, posted date, source URL.

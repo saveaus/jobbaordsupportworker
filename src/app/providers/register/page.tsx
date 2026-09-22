@@ -4,6 +4,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server"
 import { getProviderForUser } from "@/lib/queries/provider"
 import { RegisterForm } from "./register-form"
 import { getAccountKind } from "@/lib/account"
+import { PageNav } from "@/components/site/page-nav"
 
 export const metadata: Metadata = { title: "Provider sign up" }
 
@@ -23,6 +24,7 @@ export default async function ProviderRegisterPage() {
 
   return (
     <div className="flex flex-col gap-8">
+      <PageNav backHref="/providers" backLabel="Back" />
       <h1 className="text-h1">Provider sign up</h1>
       <RegisterForm defaultEmail={user.email ?? ""} />
     </div>

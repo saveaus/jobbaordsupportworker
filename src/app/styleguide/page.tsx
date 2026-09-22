@@ -6,7 +6,7 @@ import { IconCheck, IconChevronDown, IconClose, IconExternal } from "@/component
 import { Checkbox, Input, Select, Textarea } from "@/components/ui/input"
 import { SkeletonJobList, SkeletonLine } from "@/components/ui/skeleton"
 import { Table, Td, Th } from "@/components/ui/table"
-import { JobRow } from "@/components/job-row"
+import { JobCard } from "@/components/job-card"
 
 export const metadata: Metadata = { title: "Styleguide" }
 
@@ -125,10 +125,10 @@ export default function StyleguidePage() {
         <SkeletonJobList rows={2} />
       </Section>
 
-      <Section title="Job row">
-        <div className="border-t border-line">
-          {sampleJobs.map(function renderJob(job) {
-            return <JobRow key={job.title} job={job} />
+      <Section title="Job card">
+        <div className="flex max-w-form flex-col gap-3">
+          {sampleJobs.map(function renderJob(job, index) {
+            return <JobCard key={job.title} job={job} selected={index === 0} />
           })}
         </div>
       </Section>

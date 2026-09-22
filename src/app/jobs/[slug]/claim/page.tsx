@@ -4,6 +4,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server"
 import { getProviderForUser } from "@/lib/queries/provider"
 import { ClaimForm } from "./claim-form"
 import type { AppPageProps } from "@/lib/page-props"
+import { PageNav } from "@/components/site/page-nav"
 
 export const metadata: Metadata = { title: "Claim this listing" }
 
@@ -28,6 +29,7 @@ export default async function ClaimPage({ params }: AppPageProps) {
 
   return (
     <div className="flex max-w-form flex-col gap-8">
+      <PageNav backHref={`/jobs/${slug}`} backLabel="Back to listing" />
       <h1 className="text-h1">Claim this listing</h1>
       <p>
         {job.title} in {job.suburb}, {job.state}, listed as {job.provider_name}.

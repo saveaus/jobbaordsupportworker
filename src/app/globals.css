@@ -64,7 +64,7 @@
   --blur-*: initial;
 
   --container-*: initial;
-  --container-page: 960px;
+  --container-page: 1080px;
   --container-form: 480px;
   --container-prose: 65ch;
 }

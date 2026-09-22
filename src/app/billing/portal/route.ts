@@ -9,15 +9,15 @@ export async function GET() {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) redirect("/sign-in?next=/billing")
+  if (!user) redirect("/sign-in?next=/settings")
 
   const provider = await getProviderForUser(supabase)
-  if (!provider?.stripe_customer_id) redirect("/billing")
+  if (!provider?.stripe_customer_id) redirect("/settings")
 
   const stripe = getStripe()
   const session = await stripe.billingPortal.sessions.create({
     customer: provider.stripe_customer_id,
-    return_url: `${siteConfig.url}/billing`,
+    return_url: `${siteConfig.url}/settings`,
   })
   redirect(session.url)
 }

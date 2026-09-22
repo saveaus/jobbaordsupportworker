@@ -4,6 +4,7 @@ import { createSupabaseServiceClient } from "@/lib/supabase/service"
 import { Button } from "@/components/ui/button"
 import { Table, Td, Th } from "@/components/ui/table"
 import { approveJob, removeJob } from "./actions"
+import { PageNav } from "@/components/site/page-nav"
 
 export const metadata: Metadata = { title: "Admin jobs" }
 
@@ -23,6 +24,7 @@ export default async function AdminJobsPage() {
 
   return (
     <div className="flex flex-col gap-8">
+      <PageNav backHref="/admin" backLabel="Back to admin" />
       <h1 className="text-h1">Jobs</h1>
       <h2 className="text-h2">Pending approval</h2>
       <Table>

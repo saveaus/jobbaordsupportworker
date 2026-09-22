@@ -10,16 +10,19 @@ import { VerifiedScore } from "@/components/verified-score"
 import { createSupabaseServerClient } from "@/lib/supabase/server"
 import { getProviderForUser } from "@/lib/queries/provider"
 import { updateApplication, markFilled, renewJob } from "./actions"
+import { firstRelation } from "@/lib/relation"
+import { syncCheckoutSession } from "@/lib/stripe-sync"
+import { PayToPublish } from "../../pay-to-publish"
+import { PageNav } from "@/components/site/page-nav"
 import type { AppPageProps } from "@/lib/page-props"
-import { AccountNav } from "@/components/site/account-nav"
-import Link from "next/link"
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: "Applicants" }
 }
 
-export default async function JobApplicantsPage({ params }: AppPageProps) {
+export default async function JobApplicantsPage({ params, searchParams }: AppPageProps) {
   const { id } = await params
+  const query = await searchParams
   const supabase = await createSupabaseServerClient()
   const {
     data: { user },
@@ -28,6 +31,23 @@ export default async function JobApplicantsPage({ params }: AppPageProps) {
 
   const provider = await getProviderForUser(supabase)
   if (!provider) redirect("/providers/register")
+
+  if (query.checkout === "ok") {
+    const sessionId = typeof query.session_id === "string" ? query.session_id : ""
+    if (sessionId) {
+      try {
+        await syncCheckoutSession(sessionId, provider.stripe_customer_id)
+      } catch {
+        // Webhook will persist the trial.
+      }
+    }
+    const { data: published } = await supabase.rpc("publish_draft_job", { p_job_id: id })
+    const next = firstRelation(
+      published as { status?: string; slug?: string } | { status?: string; slug?: string }[] | null
+    )
+    if (next?.status === "live" && next.slug) redirect(`/jobs/${next.slug}`)
+    if (next?.status && next.status !== "draft") redirect(`/dashboard/jobs/${id}`)
+  }
 
   const { data: job } = await supabase
     .from("jobs")
@@ -73,13 +93,8 @@ export default async function JobApplicantsPage({ params }: AppPageProps) {
   const readOnly = job.status === "unpublished" || job.status === "expired"
 
   return (
-    <div className="flex flex-col gap-8">
-      <AccountNav kind="provider" />
-      <p>
-        <Link href="/dashboard" className="underline">
-          Dashboard
-        </Link>
-      </p>
+    <div className="flex flex-col gap-6">
+      <PageNav backHref="/dashboard" backLabel="Back to job posts" />
       <div className="flex flex-col gap-2">
         <h1 className="text-h1">{job.title}</h1>
         <p className="text-sm text-muted">
@@ -87,7 +102,14 @@ export default async function JobApplicantsPage({ params }: AppPageProps) {
         </p>
       </div>
 
-      {!readOnly ? (
+      {job.status === "draft" ? (
+        <div className="flex flex-col items-start gap-4">
+          <p>Pay to publish this job. 14 days free, then $249 a month plus GST.</p>
+          <PayToPublish jobId={job.id} />
+        </div>
+      ) : readOnly ? (
+        <p className="text-sm text-muted">This job is read only.</p>
+      ) : (
         <div className="flex flex-wrap gap-4">
           {job.status === "live" ? (
             <form action={markFilled}>
@@ -106,11 +128,9 @@ export default async function JobApplicantsPage({ params }: AppPageProps) {
             </form>
           ) : null}
         </div>
-      ) : (
-        <p className="text-sm text-muted">This job is read only.</p>
       )}
 
-      {(applications ?? []).length === 0 ? (
+      {job.status === "draft" ? null : (applications ?? []).length === 0 ? (
         <EmptyState message="No applicants yet. We'll email you when someone applies." />
       ) : (
         <ul className="flex flex-col border-t border-line">
@@ -122,7 +142,7 @@ export default async function JobApplicantsPage({ params }: AppPageProps) {
                 .filter((check) => check.status === "verified")
                 .map((check) => check.requirement)
             )
-            const matches = (job.requirements as string[]).filter((req) =>
+            const matches = ((job.requirements ?? []) as string[]).filter((req) =>
               verifiedCodes.has(req)
             )
             return (

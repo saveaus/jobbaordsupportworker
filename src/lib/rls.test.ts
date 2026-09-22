@@ -54,4 +54,9 @@ describe.skipIf(!configured)("RLS refusals", () => {
     const { data } = await anonClient().from("applications").select("*")
     expect(data ?? []).toEqual([])
   })
+
+  it("refuses anonymous reads of saved jobs", async () => {
+    const { data } = await anonClient().from("saved_jobs").select("*")
+    expect(data ?? []).toEqual([])
+  })
 })

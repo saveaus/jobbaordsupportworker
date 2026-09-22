@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { requireAdmin } from "@/lib/auth"
 import { createSupabaseServiceClient } from "@/lib/supabase/service"
+import { PageNav } from "@/components/site/page-nav"
 
 export const metadata: Metadata = { title: "Admin" }
 
@@ -28,6 +29,7 @@ export default async function AdminPage() {
 
   return (
     <div className="flex flex-col gap-8">
+      <PageNav backHref="/" backLabel="Back to jobs" />
       <h1 className="text-h1">Admin</h1>
       <dl className="grid max-w-form grid-cols-2 gap-4 tabular-nums">
         <div>

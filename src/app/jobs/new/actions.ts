@@ -2,6 +2,10 @@
 
 import { redirect } from "next/navigation"
 import { z } from "zod"
+import { redirectToCheckout } from "@/app/billing/actions"
+import { encodeJobDescription } from "@/lib/job-copy"
+import { getProviderForUser } from "@/lib/queries/provider"
+import { firstRelation } from "@/lib/relation"
 import { createSupabaseServerClient } from "@/lib/supabase/server"
 
 export interface JobFormState {
@@ -19,8 +23,7 @@ const schema = z.object({
   payMin: z.string().optional(),
   payMax: z.string().optional(),
   payPeriod: z.enum(["hour", "year"]).optional(),
-  description: z.string().trim().min(20, "Enter a description."),
-  positions: z.string().optional(),
+  description: z.string().trim().min(20, "Say what the work is."),
 })
 
 export async function createJobAction(
@@ -31,7 +34,10 @@ export async function createJobAction(
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) redirect("/sign-in?next=/jobs/new")
+  if (!user) redirect("/sign-in?next=/jobs/new/write")
+
+  const provider = await getProviderForUser(supabase)
+  if (!provider) redirect("/providers/register")
 
   const parsed = schema.safeParse({
     title: formData.get("title"),
@@ -44,7 +50,6 @@ export async function createJobAction(
     payMax: formData.get("payMax") || undefined,
     payPeriod: formData.get("payPeriod") || undefined,
     description: formData.get("description"),
-    positions: formData.get("positions") || undefined,
   })
   if (!parsed.success) {
     const fieldErrors: Record<string, string> = {}
@@ -56,8 +61,15 @@ export async function createJobAction(
   }
 
   const requirements = formData.getAll("requirements").map(String)
+  const shifts = formData.getAll("shifts").map(String)
   const payMin = parsed.data.payMin ? Number(parsed.data.payMin) : null
   const payMax = parsed.data.payMax ? Number(parsed.data.payMax) : null
+  if (payMin != null && Number.isNaN(payMin))
+    return { fieldErrors: { payMin: "Enter a number." } }
+  if (payMax != null && Number.isNaN(payMax))
+    return { fieldErrors: { payMax: "Enter a number." } }
+  if (payMin != null && payMax != null && payMax < payMin)
+    return { fieldErrors: { payMax: "To must be at least From." } }
 
   const { data, error } = await supabase.rpc("create_job", {
     p_title: parsed.data.title,
@@ -70,19 +82,37 @@ export async function createJobAction(
     p_pay_max: payMax,
     p_pay_period: payMin || payMax ? parsed.data.payPeriod ?? "hour" : null,
     p_requirements: requirements,
-    p_description: parsed.data.description,
-    p_positions: Number(parsed.data.positions ?? 1),
+    p_description: encodeJobDescription(parsed.data.description, shifts),
+    p_positions: 1,
   })
   if (error) return { error: friendlyJobError(error.message) }
 
-  const job = data as { slug?: string } | null
-  redirect(job?.slug ? `/jobs/${job.slug}` : "/dashboard")
+  const job = firstRelation(
+    data as
+      | { id?: string; slug?: string; status?: string }
+      | { id?: string; slug?: string; status?: string }[]
+      | null
+  )
+  if (job?.status === "draft" && job.id) {
+    if (provider.stripe_subscription_status === "past_due")
+      redirect("/billing/portal")
+    await redirectToCheckout({
+      userEmail: user.email,
+      provider,
+      jobId: job.id,
+      interval: "month",
+      returnPath: `/dashboard/jobs/${job.id}`,
+    })
+  }
+  if (job?.status === "live" && job.slug)
+    redirect(`/jobs/${job.slug}`)
+  redirect("/dashboard")
 }
 
 function friendlyJobError(message: string): string {
-  if (message.includes("subscription")) return "A current trial or paid plan is required to post."
+  if (message.includes("subscription")) return "A current trial or paid plan is required to publish."
   if (message.includes("suspended")) return "This account is suspended."
   if (message.includes("attestation")) return "Employer confirmation is required."
   if (message.includes("no provider")) return "Create a provider account first."
-  return "We couldn't publish the job. Try again in a minute."
+  return "We couldn't save the job. Try again in a minute."
 }

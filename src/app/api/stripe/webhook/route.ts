@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { getStripe } from "@/lib/stripe"
 import { createSupabaseServiceClient } from "@/lib/supabase/service"
 import { syncSubscription } from "@/lib/stripe-sync"
+import { publishDraftJob } from "@/lib/publish-draft"
 import { sendWelcomeProvider } from "@/lib/email/templates"
 
 export async function POST(request: Request) {
@@ -33,7 +34,12 @@ export async function POST(request: Request) {
   if (!handled.has(event.type)) return NextResponse.json({ received: true })
 
   if (event.type === "checkout.session.completed") {
-    const session = event.data.object as { subscription?: string; customer?: string; client_reference_id?: string }
+    const session = event.data.object as {
+      subscription?: string
+      customer?: string
+      client_reference_id?: string
+      metadata?: { job_id?: string; provider_id?: string }
+    }
     if (session.client_reference_id && session.customer) {
       await db
         .from("providers")
@@ -47,6 +53,9 @@ export async function POST(request: Request) {
       if (provider?.email) await sendWelcomeProvider(provider.email)
     }
     if (session.subscription) await syncSubscription(session.subscription as string)
+    const jobId = session.metadata?.job_id
+    const providerId = session.metadata?.provider_id ?? session.client_reference_id
+    if (jobId && providerId) await publishDraftJob(jobId, providerId)
     return NextResponse.json({ received: true })
   }
 

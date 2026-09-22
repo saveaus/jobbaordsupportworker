@@ -9,9 +9,10 @@ import { formatApplicantCount, formatDaysLeft } from "@/lib/format"
 import { createSupabaseServerClient } from "@/lib/supabase/server"
 import { getProviderForUser } from "@/lib/queries/provider"
 import { getAccountKind } from "@/lib/account"
-import { AccountNav } from "@/components/site/account-nav"
+import { PageNav } from "@/components/site/page-nav"
+import { PayToPublish } from "./pay-to-publish"
 
-export const metadata: Metadata = { title: "Dashboard" }
+export const metadata: Metadata = { title: "Job posts" }
 
 export default async function DashboardPage() {
   const supabase = await createSupabaseServerClient()
@@ -54,16 +55,16 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="flex flex-col gap-8">
-      <AccountNav kind="provider" />
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <h1 className="text-h1">Dashboard</h1>
+    <div className="flex flex-col gap-6">
+      <PageNav backHref="/" backLabel="Back to jobs" />
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <h1 className="text-h1">Job posts</h1>
         <ButtonLink href="/jobs/new">Post a job</ButtonLink>
       </div>
       {isPastDue ? (
         <p className="text-error">
           Payment failed.{" "}
-          <Link href="/billing" className="underline">
+          <Link href="/settings" className="underline">
             Update your card
           </Link>{" "}
           to keep jobs live.
@@ -98,7 +99,14 @@ export default async function DashboardPage() {
                     </Link>
                     {readOnly ? <span className="text-sm text-muted"> (read only)</span> : null}
                   </Td>
-                  <Td>{JOB_STATUS_LABELS[job.status as keyof typeof JOB_STATUS_LABELS] ?? job.status}</Td>
+                  <Td>
+                    <div className="flex flex-col items-start gap-1">
+                      <span>
+                        {JOB_STATUS_LABELS[job.status as keyof typeof JOB_STATUS_LABELS] ?? job.status}
+                      </span>
+                      {job.status === "draft" ? <PayToPublish jobId={job.id} compact /> : null}
+                    </div>
+                  </Td>
                   <Td numeric>{viewCounts.get(job.id) ?? 0}</Td>
                   <Td numeric className="font-semibold">
                     {formatApplicantCount(applicants).replace(" applicants", "").replace(" applicant", "")}

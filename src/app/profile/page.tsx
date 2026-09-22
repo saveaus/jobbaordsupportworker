@@ -5,9 +5,9 @@ import { VerifiedScore } from "@/components/verified-score"
 import type { ProfileRecord } from "@/lib/types"
 import type { AppPageProps } from "@/lib/page-props"
 import { requireApplicant } from "@/lib/account"
-import { AccountNav } from "@/components/site/account-nav"
 import type { RequirementCheck } from "@/lib/verification"
 import { verificationPercent } from "@/lib/verification"
+import { PageNav } from "@/components/site/page-nav"
 
 export const metadata: Metadata = { title: "Profile" }
 
@@ -30,7 +30,7 @@ export default async function ProfilePage({ searchParams }: AppPageProps) {
 
   return (
     <div className="flex flex-col gap-8">
-      <AccountNav kind="applicant" />
+      <PageNav backHref="/" backLabel="Back to jobs" />
       <div className="flex flex-col gap-2">
         <h1 className="text-h1">{profile ? "Profile" : "Set up your profile"}</h1>
         <VerifiedScore percent={percent} />
