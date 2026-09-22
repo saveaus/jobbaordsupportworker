@@ -31,27 +31,30 @@ export async function SiteHeader() {
               <NavLink href="/account">Account</NavLink>
               <Link
                 href="/jobs/new"
-                className="inline-flex h-11 items-center rounded-sm border border-ink px-4 font-semibold hover:bg-panel"
+                className="inline-flex h-11 items-center rounded-sm border border-night px-4 font-semibold hover:bg-slate-20"
               >
                 Post a job
               </Link>
             </>
           ) : null}
-          {user && kind !== "applicant" && kind !== "provider" ? (
-            <Link href="/account" className="inline-flex min-h-11 items-center underline">
-              Account
+          {user && !kind ? (
+            <Link href="/get-started" className="inline-flex min-h-11 items-center underline">
+              Apply or hire
             </Link>
           ) : null}
           {!user ? (
             <>
               <Link href="/sign-in" className="inline-flex min-h-11 items-center underline">
-                Sign in to apply
+                Sign in
+              </Link>
+              <Link href="/providers" className="inline-flex min-h-11 items-center underline">
+                Post a job
               </Link>
               <Link
-                href="/providers"
-                className="inline-flex h-11 items-center rounded-sm border border-ink px-4 font-semibold hover:bg-panel"
+                href="/create-account"
+                className="inline-flex h-11 items-center rounded-sm bg-night px-4 font-semibold text-paper hover:bg-night-50"
               >
-                Post a job
+                Create account
               </Link>
             </>
           ) : null}

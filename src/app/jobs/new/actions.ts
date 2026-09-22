@@ -31,7 +31,7 @@ export async function createJobAction(
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) redirect("/providers")
+  if (!user) redirect("/sign-in?next=/jobs/new")
 
   const parsed = schema.safeParse({
     title: formData.get("title"),

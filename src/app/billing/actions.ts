@@ -15,7 +15,7 @@ export async function startCheckout(formData: FormData) {
   if (!user) redirect("/sign-in?next=/billing")
 
   const provider = await getProviderForUser(supabase)
-  if (!provider) redirect("/providers")
+  if (!provider) redirect("/providers/register")
 
   const interval = formData.get("interval") === "year" ? "year" : "month"
   const priceId =

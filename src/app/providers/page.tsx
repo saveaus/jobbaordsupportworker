@@ -1,21 +1,15 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { redirect } from "next/navigation"
+import { ButtonLink } from "@/components/ui/button"
 import { createSupabaseServerClient } from "@/lib/supabase/server"
 import { getProviderForUser } from "@/lib/queries/provider"
-import { SignInForm } from "@/app/sign-in/sign-in-form"
 import { getAccountKind } from "@/lib/account"
+import { choosePath, createAccountPath, signInPath } from "@/lib/account-kind"
 
-export const metadata: Metadata = { title: "Sign in to hire" }
+export const metadata: Metadata = { title: "Hire support workers" }
 
-export default async function ProvidersPage({
-  searchParams,
-}: PageProps<"/providers">) {
-  const params = await searchParams
-  const passwordFailed = params.error === "password"
-  const linkFailed = params.error === "link"
-  const kindFailed = params.error === "kind"
-
+export default async function ProvidersPage() {
   const supabase = await createSupabaseServerClient()
   const {
     data: { user },
@@ -23,24 +17,19 @@ export default async function ProvidersPage({
 
   if (user) {
     const kind = await getAccountKind(supabase)
+    if (!kind) redirect(choosePath("/providers/register"))
     if (kind === "applicant") {
       return (
         <div className="flex max-w-prose flex-col gap-8">
-          <h1 className="text-h1">Sign in to hire</h1>
+          <h1 className="text-h1">Hire support workers</h1>
           <p>
-            This login is an applicant account. Sign out and use a work email to
-            hire.
+            This account is set up to apply. Post jobs from a hiring account.
           </p>
           <p className="text-sm text-muted">
             <Link href="/account" className="underline">
               Back to your account
             </Link>
           </p>
-          <form action="/auth/sign-out" method="post">
-            <button type="submit" className="inline-flex min-h-11 items-center underline">
-              Sign out
-            </button>
-          </form>
         </div>
       )
     }
@@ -50,7 +39,7 @@ export default async function ProvidersPage({
 
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="text-h1">Sign in to hire</h1>
+      <h1 className="text-h1">Hire support workers</h1>
       <div className="flex max-w-prose flex-col gap-4">
         <p>
           Post unlimited support work jobs and receive applications with profiles
@@ -60,29 +49,15 @@ export default async function ProvidersPage({
           $249 a month plus GST, or $2,490 a year plus GST. The first 14 days are
           free; a card is required to start and you can cancel anytime.
         </p>
-        <p className="font-mono text-sm text-night-25">
-          Business accounts only. Apply from a separate login.
-        </p>
       </div>
-      {passwordFailed ? (
-        <p className="text-error">That email or password is wrong.</p>
-      ) : null}
-      {linkFailed ? (
-        <p className="text-error">That sign-in link is invalid or has expired. Request a new one.</p>
-      ) : null}
-      {kindFailed ? (
-        <p className="text-error">
-          That email is an applicant account. Sign in to apply instead.
-        </p>
-      ) : null}
-      <SignInForm next="/providers/register" kind="provider" />
-      <p className="text-sm text-muted">
-        Looking for work?{" "}
-        <Link href="/sign-in" className="underline">
-          Sign in to apply
-        </Link>
-        .
-      </p>
+      <div className="flex flex-wrap gap-4">
+        <ButtonLink href={createAccountPath("/providers/register")}>
+          Create account
+        </ButtonLink>
+        <ButtonLink href={signInPath("/providers/register")} variant="secondary">
+          Sign in
+        </ButtonLink>
+      </div>
     </div>
   )
 }

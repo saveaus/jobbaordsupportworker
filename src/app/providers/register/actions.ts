@@ -7,7 +7,7 @@ import { checkRateLimit } from "@/lib/rate-limit"
 import { verifyTurnstile } from "@/lib/turnstile"
 import { createSupabaseServerClient } from "@/lib/supabase/server"
 import { normaliseProviderName } from "@/lib/import/normalise"
-import { ensureAccountKind } from "@/lib/account"
+import { getAccountKind } from "@/lib/account"
 
 export interface RegisterState {
   error?: string
@@ -36,9 +36,10 @@ export async function registerProvider(
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) redirect("/providers")
+  if (!user) redirect("/sign-in?next=/providers/register")
 
-  const kind = await ensureAccountKind(supabase, "provider")
+  const kind = await getAccountKind(supabase)
+  if (!kind) redirect("/get-started?next=/providers/register&intent=hire")
   if (kind === "applicant") redirect("/account")
 
   const parsed = registerSchema.safeParse({

@@ -12,9 +12,10 @@ export default async function ProviderRegisterPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) redirect("/providers")
+  if (!user) redirect("/sign-in?next=/providers/register")
 
   const kind = await getAccountKind(supabase)
+  if (!kind) redirect("/get-started?next=/providers/register&intent=hire")
   if (kind === "applicant") redirect("/account")
 
   const provider = await getProviderForUser(supabase)

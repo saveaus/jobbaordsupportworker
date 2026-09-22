@@ -6,8 +6,36 @@ export function parseAccountKind(value: string | null | undefined): AccountKind 
   return value === "provider" ? "provider" : "applicant"
 }
 
-export function signInPath(kind: AccountKind) {
-  return kind === "provider" ? "/providers" : "/sign-in"
+export function safeNext(value: string | null | undefined, fallback = "/") {
+  const next = String(value ?? "").trim()
+  if (!next.startsWith("/") || next.startsWith("//")) return fallback
+  return next
+}
+
+export function withNext(path: string, next = "/") {
+  const safe = safeNext(next)
+  if (safe === "/" || safe === path || safe.startsWith(`${path}?`)) return path
+  return `${path}?next=${encodeURIComponent(safe)}`
+}
+
+export function signInPath(next = "/") {
+  return withNext("/sign-in", next)
+}
+
+export function createAccountPath(next = "/") {
+  return withNext("/create-account", next)
+}
+
+export function choosePath(next = "/") {
+  const safe = safeNext(next)
+  const params = new URLSearchParams()
+  const path = safe.split("?")[0]
+  if (path !== "/" && path !== "/get-started" && path !== "/create-account" && path !== "/sign-in")
+    params.set("next", safe)
+  if (accountKindFromNext(safe) === "provider")
+    params.set("intent", "hire")
+  const query = params.toString()
+  return query ? `/get-started?${query}` : "/get-started"
 }
 
 export function accountKindFromNext(next: string): AccountKind {

@@ -5,7 +5,7 @@ import { z } from "zod"
 import { createSupabaseServerClient } from "@/lib/supabase/server"
 import { resolveLocation } from "@/lib/location"
 import { sendWelcomeApplicant } from "@/lib/email/templates"
-import { ensureAccountKind } from "@/lib/account"
+import { choosePath, getAccountKind } from "@/lib/account"
 
 export interface ProfileState {
   error?: string
@@ -33,7 +33,8 @@ export async function saveProfile(
   } = await supabase.auth.getUser()
   if (!user) redirect("/sign-in?next=/profile")
 
-  const kind = await ensureAccountKind(supabase, "applicant")
+  const kind = await getAccountKind(supabase)
+  if (!kind) redirect(choosePath("/profile"))
   if (kind === "provider") redirect("/dashboard")
 
   const parsed = schema.safeParse({

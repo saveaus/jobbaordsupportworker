@@ -14,9 +14,10 @@ export default async function NewJobPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) redirect("/providers")
+  if (!user) redirect("/sign-in?next=/jobs/new")
 
   const kind = await getAccountKind(supabase)
+  if (!kind) redirect("/get-started?next=/jobs/new&intent=hire")
   if (kind === "applicant") redirect("/account")
 
   const provider = await getProviderForUser(supabase)

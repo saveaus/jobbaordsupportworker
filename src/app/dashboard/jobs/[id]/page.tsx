@@ -24,10 +24,10 @@ export default async function JobApplicantsPage({ params }: AppPageProps) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) redirect("/providers")
+  if (!user) redirect(`/sign-in?next=/dashboard/jobs/${id}`)
 
   const provider = await getProviderForUser(supabase)
-  if (!provider) redirect("/providers")
+  if (!provider) redirect("/providers/register")
 
   const { data: job } = await supabase
     .from("jobs")

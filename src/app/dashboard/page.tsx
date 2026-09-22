@@ -18,9 +18,10 @@ export default async function DashboardPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) redirect("/providers")
+  if (!user) redirect("/sign-in?next=/dashboard")
 
   const kind = await getAccountKind(supabase)
+  if (!kind) redirect("/get-started?next=/dashboard&intent=hire")
   if (kind === "applicant") redirect("/account")
 
   const provider = await getProviderForUser(supabase)

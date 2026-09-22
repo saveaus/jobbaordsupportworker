@@ -1,41 +1,38 @@
 import type { SupabaseClient } from "@supabase/supabase-js"
 import {
-  type AccountKind,
   accountKindFromNext,
-  ensureAccountKind,
+  choosePath,
   getAccountKind,
   getApplicantProfile,
 } from "@/lib/account"
+import { safeNext, type AccountKind } from "@/lib/account-kind"
 
-export class AccountKindMismatchError extends Error {
-  existing: AccountKind
-  requested: AccountKind
-
-  constructor(existing: AccountKind, requested: AccountKind) {
-    super("account-kind-mismatch")
-    this.existing = existing
-    this.requested = requested
-  }
-}
-
-export async function pathAfterSignIn(
+export async function pathAfterKind(
   supabase: SupabaseClient,
-  next: string,
-  requested = accountKindFromNext(next)
+  kind: AccountKind,
+  next: string
 ) {
-  const existing = await getAccountKind(supabase)
-  if (existing && existing !== requested)
-    throw new AccountKindMismatchError(existing, requested)
+  const safe = safeNext(next)
 
-  const kind = await ensureAccountKind(supabase, requested)
+  if (kind === "provider") {
+    if (accountKindFromNext(safe) === "provider" && safe !== "/providers")
+      return safe
+    return "/dashboard"
+  }
 
-  if (kind === "provider")
-    return requested === "provider" ? next : "/dashboard"
+  const applicantNext = accountKindFromNext(safe) === "provider" ? "/" : safe
+  if (applicantNext === "/get-started" || applicantNext === "/create-account")
+    return "/"
 
-  const applicantNext = requested === "provider" ? "/account" : next
   const { isComplete } = await getApplicantProfile(supabase)
   if (!isComplete && !applicantNext.startsWith("/profile"))
     return `/profile?next=${encodeURIComponent(applicantNext)}`
 
   return applicantNext
+}
+
+export async function pathAfterSignIn(supabase: SupabaseClient, next: string) {
+  const existing = await getAccountKind(supabase)
+  if (!existing) return choosePath(next)
+  return pathAfterKind(supabase, existing, next)
 }

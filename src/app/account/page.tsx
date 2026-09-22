@@ -4,7 +4,8 @@ import { redirect } from "next/navigation"
 import { createSupabaseServerClient } from "@/lib/supabase/server"
 import { getProviderForUser } from "@/lib/queries/provider"
 import {
-  ensureAccountKind,
+  choosePath,
+  getAccountKind,
   getApplicantProfile,
 } from "@/lib/account"
 import { AccountNav } from "@/components/site/account-nav"
@@ -20,7 +21,8 @@ export default async function AccountPage() {
   } = await supabase.auth.getUser()
   if (!user) redirect("/sign-in?next=/account")
 
-  const kind = await ensureAccountKind(supabase, "applicant")
+  const kind = await getAccountKind(supabase)
+  if (!kind) redirect(choosePath("/account"))
   const provider = kind === "provider" ? await getProviderForUser(supabase) : null
   const { isComplete } = kind === "applicant"
     ? await getApplicantProfile(supabase)

@@ -4,17 +4,15 @@ import { AuthSwitch } from "@/components/site/auth-switch"
 import { safeNext } from "@/lib/account-kind"
 import { pathAfterSignIn } from "@/lib/auth-redirect"
 import { createSupabaseServerClient, getSessionUser } from "@/lib/supabase/server"
-import { SignInForm } from "./sign-in-form"
+import { CreateAccountForm } from "./create-account-form"
 
-export const metadata: Metadata = { title: "Sign in" }
+export const metadata: Metadata = { title: "Create account" }
 
-export default async function SignInPage({
+export default async function CreateAccountPage({
   searchParams,
-}: PageProps<"/sign-in">) {
+}: PageProps<"/create-account">) {
   const params = await searchParams
   const next = safeNext(typeof params.next === "string" ? params.next : "/")
-  const linkFailed = params.error === "link"
-  const passwordFailed = params.error === "password"
 
   const user = await getSessionUser()
   if (user) {
@@ -24,18 +22,12 @@ export default async function SignInPage({
 
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="text-h1">Sign in</h1>
+      <h1 className="text-h1">Create account</h1>
       <p className="max-w-prose">
-        Use the email and password for your account.
+        One account. Then choose to apply or hire.
       </p>
-      {passwordFailed ? (
-        <p className="text-error">That email or password is wrong.</p>
-      ) : null}
-      {linkFailed ? (
-        <p className="text-error">That sign-in link is invalid or has expired. Request a new one.</p>
-      ) : null}
-      <SignInForm next={next} />
-      <AuthSwitch mode="sign-in" next={next} />
+      <CreateAccountForm next={next} />
+      <AuthSwitch mode="create-account" next={next} />
     </div>
   )
 }

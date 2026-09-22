@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { safeNext } from "@/lib/account-kind"
 
 export const metadata: Metadata = { title: "Continue sign in" }
 
@@ -11,13 +12,10 @@ export default async function ConfirmSignInPage({
   const tokenHash = typeof params.token_hash === "string" ? params.token_hash : ""
   const code = typeof params.code === "string" ? params.code : ""
   const type = typeof params.type === "string" ? params.type : "email"
-  const next = typeof params.next === "string" && params.next.startsWith("/")
-    ? params.next
-    : "/"
-  const kind = params.kind === "provider" ? "provider" : "applicant"
+  const next = safeNext(typeof params.next === "string" ? params.next : "/")
 
   if (!tokenHash && !code)
-    redirect(kind === "provider" ? "/providers?error=link" : "/sign-in?error=link")
+    redirect(`/sign-in?error=link`)
 
   return (
     <div className="flex max-w-form flex-col gap-8">
@@ -30,7 +28,6 @@ export default async function ConfirmSignInPage({
         <input type="hidden" name="code" value={code} />
         <input type="hidden" name="type" value={type} />
         <input type="hidden" name="next" value={next} />
-        <input type="hidden" name="kind" value={kind} />
         <Button type="submit">Sign in</Button>
       </form>
     </div>

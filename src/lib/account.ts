@@ -4,11 +4,18 @@ import { createSupabaseServerClient } from "@/lib/supabase/server"
 import {
   type AccountKind,
   accountKindFromNext,
+  choosePath,
   isCompleteApplicantProfile,
+  signInPath,
 } from "@/lib/account-kind"
 
 export type { AccountKind }
-export { accountKindFromNext, isCompleteApplicantProfile }
+export {
+  accountKindFromNext,
+  choosePath,
+  isCompleteApplicantProfile,
+  signInPath,
+}
 
 export async function getAccountKind(
   supabase: SupabaseClient
@@ -89,9 +96,10 @@ export async function requireApplicant(nextPath: string) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) redirect(`/sign-in?next=${nextPath}`)
+  if (!user) redirect(signInPath(nextPath))
 
-  const kind = await ensureAccountKind(supabase, "applicant")
+  const kind = await getAccountKind(supabase)
+  if (!kind) redirect(choosePath(nextPath))
   if (kind === "provider") redirect("/dashboard")
 
   return { supabase, user }

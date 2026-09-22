@@ -19,7 +19,7 @@ export default async function BillingPage({ searchParams }: AppPageProps) {
   if (!user) redirect("/sign-in?next=/billing")
 
   const provider = await getProviderForUser(supabase)
-  if (!provider) redirect("/providers")
+  if (!provider) redirect("/providers/register")
 
   const status = provider.stripe_subscription_status
   const isPastDue = status === "past_due"

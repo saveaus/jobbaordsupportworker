@@ -6,7 +6,7 @@ import { checkRateLimit } from "@/lib/rate-limit"
 import { createSupabaseServerClient } from "@/lib/supabase/server"
 import { sendApplicationSent, sendNewApplicant } from "@/lib/email/templates"
 import { createSupabaseServiceClient } from "@/lib/supabase/service"
-import { ensureAccountKind } from "@/lib/account"
+import { choosePath, getAccountKind } from "@/lib/account"
 
 export interface ApplyState {
   error?: string
@@ -24,9 +24,10 @@ export async function applyToJob(_previous: ApplyState, formData: FormData): Pro
   } = await supabase.auth.getUser()
   if (!user) redirect(`/sign-in?next=/jobs/${jobSlug}`)
 
-  const kind = await ensureAccountKind(supabase, "applicant")
+  const kind = await getAccountKind(supabase)
+  if (!kind) redirect(choosePath(`/jobs/${jobSlug}`))
   if (kind === "provider")
-    return { error: "Business accounts cannot apply. Sign in as an applicant." }
+    return { error: "This account is set up to hire." }
 
   const { data: profile } = await supabase
     .from("profiles")

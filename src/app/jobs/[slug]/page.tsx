@@ -14,7 +14,7 @@ import { ReportLink } from "./report-link"
 import { ApplyForm } from "./apply-form"
 import { ViewBeacon } from "@/components/view-beacon"
 import type { AppPageProps } from "@/lib/page-props"
-import { getAccountKind, getApplicantProfile } from "@/lib/account"
+import { choosePath, getAccountKind, getApplicantProfile } from "@/lib/account"
 
 export async function generateMetadata({
   params,
@@ -148,9 +148,13 @@ export default async function JobPage({ params }: AppPageProps) {
       ) : (
         <div className="sticky bottom-0 z-10 -mx-6 border-t border-line bg-paper px-6 py-4 md:static md:mx-0 md:border-0 md:px-0 md:py-0">
           {user ? (
-            kind === "provider" ? (
+            !kind ? (
+              <ButtonLink href={choosePath(`/jobs/${job.slug}`)}>
+                Apply or hire
+              </ButtonLink>
+            ) : kind === "provider" ? (
               <p className="text-sm text-muted">
-                This is a business account. Sign in as an applicant to apply.
+                This account is set up to hire.
               </p>
             ) : isComplete ? (
               <div id="apply">
